@@ -12,10 +12,11 @@ fi
 SPEED="0.1"
 MUTED="\033[38;5;242m"
 NORMAL="\033[0m"
+DEMO_PROMPT=demo
 TRAP=
 
 _prompt() {
-    echo -en "\r${MUTED}${1-demo}>${NORMAL} "
+    echo -en "\r${MUTED}${1-${DEMO_PROMPT}}>${NORMAL} "
 }
 
 _trap() {
@@ -63,7 +64,22 @@ shell() {
 }
 
 if [ "$0" = "${BASH_SOURCE}" ]; then
-    c Welcome to demo.sh
+    DEMO_PROMPT=demo.sh
+    c Mix scripted and live demos with ease
+    c 'Comments and commands appear to be "typed" which offers time'
+    c 'for presenters to talk through what is happening as it happens'
+    c
+    c USAGE
+    c Include demo.sh in your demo script
+    c '  source demo.sh'
+    c
+    c COMMANDS
+    c '  c     - output a comment'
+    c '  x     - output a command, execute, and output the result'
+    c '  hold  - hold for input'
+    c '  shell - start a new shell for live demo purposes'
+    c
+    c http://github.com/jesselang/demo.sh
 fi
 
 
