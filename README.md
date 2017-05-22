@@ -1,4 +1,3 @@
 # demo.sh
-
-[![asciicast](https://asciinema.org/a/121685.png)](https://asciinema.org/a/121685)
-[![asciicast](https://asciinema.org/a/121686.png)](https://asciinema.org/a/121686)
+<script type="text/javascript" src="https://asciinema.org/a/121685.js" id="asciicast-121685" async></script>
+<script type="text/javascript" src="https://asciinema.org/a/121686.js" id="asciicast-121686" async></script>
