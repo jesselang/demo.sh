@@ -25,14 +25,14 @@ _trap() {
 
 _write() {
     _trap
-    sleep $SPEED
-    sleep $SPEED
+    sleep ${DEMO_SPEED-$SPEED}
+    sleep ${DEMO_SPEED-$SPEED}
 
     output=$@
 
     for (( i=0; i<${#output}; i++ )); do
         echo -n "${output:$i:1}"
-        sleep $SPEED
+        sleep ${DEMO_SPEED-$SPEED}
     done
 
     echo
@@ -66,9 +66,11 @@ shell() {
 if [ "$0" = "${BASH_SOURCE}" ]; then
     DEMO_PROMPT=demo.sh
     c Mix scripted and live demos with ease
+    DEMO_SPEED='0.025'
     c 'Comments and commands appear to be "typed" which offers time'
     c 'for presenters to talk through what is happening as it happens'
     c
+    DEMO_SPEED=0
     c USAGE
     c Include demo.sh in your demo script
     c '  source demo.sh'
