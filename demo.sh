@@ -20,7 +20,7 @@ _prompt() {
 }
 
 _trap() {
-    [ $TRAP ] || trap "echo -en \"\\r\"" EXIT; _prompt; TRAP=set;
+    [ $TRAP ] || trap "echo -en \"\\r\"" EXIT; trap "i=-1; echo -en \"\\r\"; shell" INFO; _prompt; TRAP=set;
 }
 
 _write() {
