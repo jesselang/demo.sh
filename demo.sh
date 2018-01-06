@@ -13,20 +13,23 @@ SPEED='0.1'
 MUTED='\033[38;5;242m'
 NORMAL='\033[0m'
 DEMO_PROMPT=demo
-_TRAP_SET=false
 
 _prompt() {
-    echo -en "\\r${MUTED}${1-${DEMO_PROMPT}}>${NORMAL} "
+    _clear_line
+    echo -en "${MUTED}${1:-${DEMO_PROMPT}}>${NORMAL} "
 }
 
-_trap() {
-    $_TRAP_SET || trap "echo -en \"\\r\"" EXIT; trap "i=-1; echo -en \"\\r\"; shell" INFO; _prompt; _TRAP_SET=true;
+_clear_line() {
+    echo -en '\r'      # carriage return
+    echo -en '\033[2K' # clear entire line
 }
 
 _write() {
-    _trap
-    sleep "${DEMO_SPEED-$SPEED}"
-    sleep "${DEMO_SPEED-$SPEED}"
+    _prompt
+    # shellcheck disable=SC2034
+    for _sleep in 1 2 3 4 5 6; do
+        sleep "${DEMO_SPEED:-$SPEED}"
+    done
 
     output=$*
 
@@ -38,29 +41,52 @@ _write() {
     echo
 }
 
+# intentionally overrides the 'clear' builtin to print the prompt afterward
+clear() {
+    command clear
+    _prompt
+}
+
+_shell_out() {
+    # reset the output counter if we interrupted _write()
+    i=-1
+    # trapping SIGQUIT prints a "\Quit" followed by a new line, clean that up
+    echo -en '\033[1A' # move up 1 line
+    _clear_line
+    shell
+}
+trap _shell_out QUIT
+
 c() {
+    trap - EXIT
     _write "# $*"
     _prompt
+    trap _clear_line EXIT
 }
 
 x() {
+    trap - EXIT
     _write "$@"
     eval "$@"
     _prompt
+    trap _clear_line EXIT
 }
 
 hold() {
+    trap - EXIT
     _prompt hold
     read -rsn 1
     _prompt
+    trap _clear_line EXIT
 }
 
 shell() {
-    echo -en '\r'
-    PS1="${MUTED}live>${NORMAL} " bash
+    trap - EXIT
+    _clear_line
+    PS1="${MUTED}live>${NORMAL} " bash --noprofile --norc
     echo -en '\033[1A' # move up 1 line
-    echo -en '\033[2K' # clear entire line
     _prompt
+    trap _clear_line EXIT
 }
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
