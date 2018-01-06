@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 echo -en hello | grep -q '-en' -
-ECHO_EN=$?
+_echo_en=$?
 
-if [ $ECHO_EN -eq 0 ]; then
-    echo "error: demo.sh requires a bash-compatible shell; your script is using:" >&2
+if [ $_echo_en -eq 0 ]; then
+    echo "error: demo.sh requires a bash-compatible shell; your script uses:" >&2
     head -1 "${0}" >&2
     exit 1
 fi
+unset _echo_en
 
 SPEED='0.1'
 MUTED='\033[38;5;242m'
