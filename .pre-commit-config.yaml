@@ -1,0 +1,15 @@
+fast_fail: true
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    sha: v1.1.1
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-yaml
+      - id: trailing-whitespace
+  - repo: https://github.com/bemeurer/beautysh
+    sha: '3.7'
+    hooks:
+      - id: beautysh
+
