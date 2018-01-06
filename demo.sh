@@ -5,41 +5,41 @@ ECHO_EN=$?
 
 if [ $ECHO_EN -eq 0 ]; then
     echo "error: demo.sh requires a bash-compatible shell; your script is using:" >&2
-    head -1 ${0} >&2
+    head -1 "${0}" >&2
     exit 1
 fi
 
-SPEED="0.1"
-MUTED="\033[38;5;242m"
-NORMAL="\033[0m"
+SPEED='0.1'
+MUTED='\033[38;5;242m'
+NORMAL='\033[0m'
 DEMO_PROMPT=demo
-TRAP=
+_TRAP_SET=false
 
 _prompt() {
-    echo -en "\r${MUTED}${1-${DEMO_PROMPT}}>${NORMAL} "
+    echo -en "\\r${MUTED}${1-${DEMO_PROMPT}}>${NORMAL} "
 }
 
 _trap() {
-    [ $TRAP ] || trap "echo -en \"\\r\"" EXIT; trap "i=-1; echo -en \"\\r\"; shell" INFO; _prompt; TRAP=set;
+    $_TRAP_SET || trap "echo -en \"\\r\"" EXIT; trap "i=-1; echo -en \"\\r\"; shell" INFO; _prompt; _TRAP_SET=true;
 }
 
 _write() {
     _trap
-    sleep ${DEMO_SPEED-$SPEED}
-    sleep ${DEMO_SPEED-$SPEED}
+    sleep "${DEMO_SPEED-$SPEED}"
+    sleep "${DEMO_SPEED-$SPEED}"
 
-    output=$@
+    output=$*
 
     for (( i=0; i<${#output}; i++ )); do
         echo -n "${output:$i:1}"
-        sleep ${DEMO_SPEED-$SPEED}
+        sleep "${DEMO_SPEED-$SPEED}"
     done
 
     echo
 }
 
 c() {
-    _write "# ${@}"
+    _write "# $*"
     _prompt
 }
 
@@ -56,14 +56,14 @@ hold() {
 }
 
 shell() {
-    echo -en "\r"
+    echo -en '\r'
     PS1="${MUTED}live>${NORMAL} " bash
-    echo -en "\033[1A" # move up 1 line
-    echo -en "\033[2K" # clear entire line
+    echo -en '\033[1A' # move up 1 line
+    echo -en '\033[2K' # clear entire line
     _prompt
 }
 
-if [ "$0" = "${BASH_SOURCE}" ]; then
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     DEMO_PROMPT=demo.sh
     c Mix scripted and live demos with ease
     DEMO_SPEED='0.025'

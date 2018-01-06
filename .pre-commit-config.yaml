@@ -12,4 +12,7 @@ repos:
     sha: '3.7'
     hooks:
       - id: beautysh
-
+  - repo: https://github.com/jesselang/shellcheck
+    sha: master
+    hooks:
+      - id: shellcheck
