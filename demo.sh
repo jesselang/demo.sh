@@ -37,6 +37,9 @@ DEMO_CLR=${DEMO_CLR:-$_clr_muted}
 DEMO_CLR_HOLD=${DEMO_CLR_HOLD:-$_clr_hold}
 DEMO_CLR_LIVE=${DEMO_CLR_LIVE:-$_clr_live}
 
+_set_title() {
+    echo -en "\033]0;${1:-${DEMO_TITLE:-$DEMO_TXT}}\007"
+}
 _prompt() {
     _clear_line
     echo -en "${@:-${DEMO_PS1:-"${DEMO_CLR}${DEMO_TXT}>${_clr_normal} "}}"
@@ -69,7 +72,9 @@ _write() {
 
 # intentionally overrides the 'clear' builtin to print the prompt afterward
 clear() {
+    _set_title clear
     command clear
+    _set_title
     _prompt
 }
 
@@ -108,6 +113,7 @@ _calc_write_delay() {
 
 c() {
     trap - EXIT
+    _set_title
     _calc_write_delay 2 # comments should go faster; they are easier to grok
     _write "# $*"
     _prompt
@@ -116,17 +122,22 @@ c() {
 
 x() {
     trap - EXIT
+    _set_title
     _calc_write_delay
     _write "$@"
+    _set_title "$@"
     eval "$@"
+    _set_title
     _prompt
     trap _clear_line EXIT
 }
 
 hold() {
     trap - EXIT
+    _set_title ${@:-$DEMO_TXT_HOLD}
     _prompt "${DEMO_PS1_HOLD:-"${DEMO_CLR_HOLD}-- ${@:-$DEMO_TXT_HOLD} --${_clr_normal} "}"
     read -rsn 1
+    _set_title
     _prompt
     trap _clear_line EXIT
 }
@@ -134,10 +145,12 @@ hold() {
 # shellcheck disable=SC2120
 live() {
     trap - EXIT
+    _set_title ${@:-$DEMO_TXT_LIVE}
     _clear_line
     PS1="${DEMO_PS1_LIVE:-"${DEMO_CLR_LIVE}${@:-$DEMO_TXT_LIVE}>${_clr_normal} "}" \
         bash --noprofile --norc
     echo -en '\033[1A' # move up 1 line
+    _set_title
     _prompt
     trap _clear_line EXIT
 }
