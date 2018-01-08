@@ -155,10 +155,10 @@ demo_main() {
     c '  source demo.sh'
     c
     c COMMANDS
-    c '  c    "<text>" - output <text> as a comment'
-    c '  x    "<text>" - output a command, execute, and output the result'
-    c '  hold "<text>" - hold for input using <text> as the prompt'
-    c '  live "<text>" - start a new live shell using <text> as the prompt'
+    c '  c     "<text>"  - output <text> as a comment'
+    c '  x    ["<text>"] - output a command, execute, and output the result'
+    c '  hold ["<text>"] - hold for input using <text> as the prompt'
+    c '  live ["<text>"] - start a new live shell using <text> as the prompt'
     c
     c http://github.com/jesselang/demo.sh
 }
