@@ -37,11 +37,11 @@ clear
 
 c 'You can choose good points in the demo to "hold" moving on to finish'
 c explaining, or answer questions. Pressing any key will continue.
-hold
+hold almost done...
 
 c You can also plan to go into a live shell during the demo.
 c Exit the shell to continue the scripted demo.
-live
+live kapow
 
 x
 c "Now you've seen the basic use of demo.sh. Thanks for checking it out!"

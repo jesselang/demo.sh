@@ -37,25 +37,9 @@ DEMO_CLR=${DEMO_CLR:-$_clr_muted}
 DEMO_CLR_HOLD=${DEMO_CLR_HOLD:-$_clr_hold}
 DEMO_CLR_LIVE=${DEMO_CLR_LIVE:-$_clr_live}
 
-# default prompts
-DEMO_PS1="${DEMO_CLR}${DEMO_TXT}>${_clr_normal} "
-DEMO_PS1_HOLD="${DEMO_CLR_HOLD}-- ${DEMO_TXT_HOLD} --${_clr_normal} "
-DEMO_PS1_LIVE="${DEMO_CLR_LIVE}${DEMO_TXT_LIVE}>${_clr_normal} "
-
 _prompt() {
     _clear_line
-    case "$1" in
-        hold)
-            echo -en "${DEMO_PS1_HOLD}"
-            ;;
-        '')
-            echo -en "${DEMO_PS1}"
-            ;;
-        *)
-            echo "error: _prompt() doesn't know how to handle '$1'" >&2
-            exit 1
-            ;;
-    esac
+    echo -en "${@:-${DEMO_PS1:-"${DEMO_CLR}${DEMO_TXT}>${_clr_normal} "}}"
 }
 
 # ANSI escape codes - http://www.climagic.org/mirrors/VT100_Escape_Codes.html
@@ -95,7 +79,7 @@ _shell_out() {
     # trapping SIGQUIT prints a "\Quit" followed by a new line, clean that up
     echo -en '\033[1A' # move up 1 line
     _clear_line
-    live
+    live ""
 }
 trap _shell_out QUIT
 
@@ -141,27 +125,25 @@ x() {
 
 hold() {
     trap - EXIT
-    _prompt hold
+    _prompt "${DEMO_PS1_HOLD:-"${DEMO_CLR_HOLD}-- ${@:-$DEMO_TXT_HOLD} --${_clr_normal} "}"
     read -rsn 1
     _prompt
     trap _clear_line EXIT
 }
 
+# shellcheck disable=SC2120
 live() {
     trap - EXIT
     _clear_line
-    PS1="${DEMO_PS1_LIVE}" bash --noprofile --norc
+    PS1="${DEMO_PS1_LIVE:-"${DEMO_CLR_LIVE}${@:-$DEMO_TXT_LIVE}>${_clr_normal} "}" \
+        bash --noprofile --norc
     echo -en '\033[1A' # move up 1 line
     _prompt
     trap _clear_line EXIT
 }
 
 demo_main() {
-    # set _demo_main=true to avoid an endless loop
-    local _demo_main=true
     DEMO_TXT=demo.sh
-    # shellcheck disable=SC1090
-    source "${BASH_SOURCE[0]}"
     c Mix scripted and live demos with ease
     DEMO_SPEED=150
     c 'Comments and commands appear to be "typed" which offers time'
@@ -173,14 +155,14 @@ demo_main() {
     c '  source demo.sh'
     c
     c COMMANDS
-    c '  c "<text>" - output <text> as a comment'
-    c '  x "<text>" - output a command, execute, and output the result'
-    c '  hold - hold for input'
-    c '  live - start a new shell for live demo purposes'
+    c '  c    "<text>" - output <text> as a comment'
+    c '  x    "<text>" - output a command, execute, and output the result'
+    c '  hold "<text>" - hold for input using <text> as the prompt'
+    c '  live "<text>" - start a new live shell using <text> as the prompt'
     c
     c http://github.com/jesselang/demo.sh
 }
 
-if [[ "$0" = "${BASH_SOURCE[0]}" ]] && [[ -z $_demo_main ]]; then
+if [[ "$0" = "${BASH_SOURCE[0]}" ]]; then
     demo_main
 fi
