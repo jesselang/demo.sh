@@ -95,7 +95,7 @@ _shell_out() {
     # trapping SIGQUIT prints a "\Quit" followed by a new line, clean that up
     echo -en '\033[1A' # move up 1 line
     _clear_line
-    shell
+    live
 }
 trap _shell_out QUIT
 
@@ -147,7 +147,7 @@ hold() {
     trap _clear_line EXIT
 }
 
-shell() {
+live() {
     trap - EXIT
     _clear_line
     PS1="${DEMO_PS1_LIVE}" bash --noprofile --norc
@@ -175,8 +175,8 @@ demo_main() {
     c COMMANDS
     c '  c "<text>" - output <text> as a comment'
     c '  x "<text>" - output a command, execute, and output the result'
-    c '  hold  - hold for input'
-    c '  shell - start a new shell for live demo purposes'
+    c '  hold - hold for input'
+    c '  live - start a new shell for live demo purposes'
     c
     c http://github.com/jesselang/demo.sh
 }

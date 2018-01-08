@@ -11,7 +11,7 @@ c "The terminal is getting messy. Let's clean up. Press a key to continue."
 hold
 clear
 c "Time for a live demo! When you're finished, type 'exit' or Ctrl-D"
-shell
+live
 c "Great job on the live portion of your demo! One more time check before we go."
 x date
 c "Thanks for all the fish!"

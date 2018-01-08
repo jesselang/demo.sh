@@ -41,7 +41,7 @@ hold
 
 c You can also plan to go into a live shell during the demo.
 c Exit the shell to continue the scripted demo.
-shell
+live
 
 x
 c "Now you've seen the basic use of demo.sh. Thanks for checking it out!"
