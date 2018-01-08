@@ -27,6 +27,10 @@ DEMO_SPEED=${DEMO_SPEED:-90}
 # used to convert words per minute to characters per minute
 DEMO_SPEED_WORD_LEN=${DEMO_SPEED_WORD_LEN:-5}
 
+# speed variation while "typing" to make it seem natural
+DEMO_SPEED_VARY_MAX=1.4
+DEMO_SPEED_VARY_MIN=0.8
+
 # default prompt text
 DEMO_TXT=${DEMO_TXT:-demo}
 DEMO_TXT_HOLD=${DEMO_TXT_HOLD:-hold}
@@ -65,6 +69,12 @@ _write() {
     for (( i=0; i<${#output}; i++ )); do
         echo -n "${output:$i:1}"
         sleep "${_write_delay}"
+
+        # recalculate write speed every 2 "words"
+        # awk reseeds every second, no use recalculating more often
+        if [[ $(( (i + 1) % (DEMO_SPEED_WORD_LEN * 2) )) -eq 0 ]]; then
+            _calc_write_delay
+        fi
     done
 
     echo
@@ -100,11 +110,18 @@ _calc_write_delay() {
         # )
         # / ${1:-1}         # multiplier used to type comments faster; which
         #                   # are more quickly digestible than commands
+        # / (rand() ...     # speed variance
         _write_delay=$(awk "
             BEGIN {
+                srand();                                            \
                 print (                                             \
                     1 / (($DEMO_SPEED * $DEMO_SPEED_WORD_LEN) / 60) \
                     / ${1:-1}                                       \
+                    / (rand()                                       \
+                        * ($DEMO_SPEED_VARY_MAX                     \
+                            - $DEMO_SPEED_VARY_MIN)                 \
+                        + $DEMO_SPEED_VARY_MIN                      \
+                    )                                               \
                 )
             }
         ")
