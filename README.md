@@ -23,6 +23,8 @@ x
 
 # NOTE: this comment won't appear in your demo
 
+# set "typing" speed in words per minute (defaults to 90)
+DEMO_SPEED=150
 c 'Using x with a command will appear to "type" the command, then execute it'
 c What time is it?
 x date
@@ -44,3 +46,17 @@ shell
 x
 c "Now you've seen the basic use of demo.sh. Thanks for checking it out!"
 ```
+
+## Configuration (environment variables)
+
+### Before `source demo.sh`
+
+ - `DEMO_TXT`: prompt text for the demo, default: `demo`
+ - `DEMO_TXT_HOLD`: prompt text for `hold`, default: `hold`
+ - `DEMO_TXT_LIVE`: prompt text for `live`, default: `live`
+
+More intrigue awaits those who _use the source_.
+
+### Anywhere
+ - `DEMO_SPEED`: "typing" speed in words per minute, default: `90`
+

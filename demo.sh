@@ -10,6 +10,11 @@ if [ $_echo_en -eq 0 ]; then
 fi
 unset _echo_en
 
+command -v awk &>/dev/null || {
+    echo 'error: awk is required for decimal arithmetic, but not found' >&2
+    exit 1
+}
+
 # colors - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
 _clr_muted='\e[38;5;242m'
 _clr_hold='\e[38;5;1m'
@@ -18,22 +23,24 @@ _clr_normal='\e[m'
 
 # these variables can be overwritten
 # default speed
-DEMO_SPEED=${DEMO_SPEED:-0.1}
+DEMO_SPEED=${DEMO_SPEED:-90}
+# used to convert words per minute to characters per minute
+DEMO_SPEED_WORD_LEN=${DEMO_SPEED_WORD_LEN:-5}
 
 # default prompt text
-DEMO_PROMPT=${DEMO_PROMPT:-demo}
-DEMO_PROMPT_HOLD=${DEMO_PROMPT_HOLD:-hold}
-DEMO_PROMPT_LIVE=${DEMO_PROMPT_LIVE:-live}
+DEMO_TXT=${DEMO_TXT:-demo}
+DEMO_TXT_HOLD=${DEMO_TXT_HOLD:-hold}
+DEMO_TXT_LIVE=${DEMO_TXT_LIVE:-live}
 
 # default colors
-DEMO_CLR_PROMPT=${DEMO_PROMPT_CLR:-$_clr_muted}
+DEMO_CLR=${DEMO_CLR:-$_clr_muted}
 DEMO_CLR_HOLD=${DEMO_CLR_HOLD:-$_clr_hold}
 DEMO_CLR_LIVE=${DEMO_CLR_LIVE:-$_clr_live}
 
 # default prompts
-DEMO_PS1="${DEMO_CLR_PROMPT}${DEMO_PROMPT}>${_clr_normal} "
-DEMO_PS1_HOLD="${DEMO_CLR_HOLD}-- ${DEMO_PROMPT_HOLD} --${_clr_normal} "
-DEMO_PS1_LIVE="${DEMO_CLR_LIVE}${DEMO_PROMPT_LIVE}>${_clr_normal} "
+DEMO_PS1="${DEMO_CLR}${DEMO_TXT}>${_clr_normal} "
+DEMO_PS1_HOLD="${DEMO_CLR_HOLD}-- ${DEMO_TXT_HOLD} --${_clr_normal} "
+DEMO_PS1_LIVE="${DEMO_CLR_LIVE}${DEMO_TXT_LIVE}>${_clr_normal} "
 
 _prompt() {
     _clear_line
@@ -59,16 +66,18 @@ _clear_line() {
 
 _write() {
     _prompt
-    # shellcheck disable=SC2034
-    for _sleep in {1..6}; do
-        sleep "${DEMO_SPEED}"
-    done
+    if [[ ${_write_delay} != 0 ]]; then
+        # shellcheck disable=SC2034
+        for _sleep in {1..6}; do
+            sleep "${_write_delay}"
+        done
+    fi
 
     output=$*
 
     for (( i=0; i<${#output}; i++ )); do
         echo -n "${output:$i:1}"
-        sleep "${DEMO_SPEED}"
+        sleep "${_write_delay}"
     done
 
     echo
@@ -90,8 +99,32 @@ _shell_out() {
 }
 trap _shell_out QUIT
 
+_calc_write_delay() {
+    if [[ $DEMO_SPEED -le 0 ]]; then
+        _write_delay=0
+    else
+        # DEMO_SPEED is words per minute
+        # 1 /                # one second, divided by...
+        # (
+        #   ($DEMO_SPEED * $DEMO_SPEED_WORD_LEN) # words/minute to chars/minute
+        #   / 60            # chars/minute into chars/second
+        # )
+        # / ${1:-1}         # multiplier used to type comments faster; which
+        #                   # are more quickly digestible than commands
+        _write_delay=$(awk -e "
+            BEGIN {
+                print (                                             \
+                    1 / (($DEMO_SPEED * $DEMO_SPEED_WORD_LEN) / 60) \
+                    / ${1:-1}                                       \
+                )
+            }
+        ")
+    fi
+}
+
 c() {
     trap - EXIT
+    _calc_write_delay 2 # comments should go faster; they are easier to grok
     _write "# $*"
     _prompt
     trap _clear_line EXIT
@@ -99,6 +132,7 @@ c() {
 
 x() {
     trap - EXIT
+    _calc_write_delay
     _write "$@"
     eval "$@"
     _prompt
@@ -122,10 +156,14 @@ shell() {
     trap _clear_line EXIT
 }
 
-if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    DEMO_PROMPT=demo.sh
+demo_main() {
+    # set _demo_main=true to avoid an endless loop
+    local _demo_main=true
+    DEMO_TXT=demo.sh
+    # shellcheck disable=SC1090
+    source "${BASH_SOURCE[0]}"
     c Mix scripted and live demos with ease
-    DEMO_SPEED=${DEMO_SPEED:-0.025}
+    DEMO_SPEED=150
     c 'Comments and commands appear to be "typed" which offers time'
     c 'for presenters to talk through what is happening as it happens'
     c
@@ -135,12 +173,14 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     c '  source demo.sh'
     c
     c COMMANDS
-    c '  c     - output a comment'
-    c '  x     - output a command, execute, and output the result'
+    c '  c "<text>" - output <text> as a comment'
+    c '  x "<text>" - output a command, execute, and output the result'
     c '  hold  - hold for input'
     c '  shell - start a new shell for live demo purposes'
     c
     c http://github.com/jesselang/demo.sh
+}
+
+if [[ "$0" = "${BASH_SOURCE[0]}" ]] && [[ -z $_demo_main ]]; then
+    demo_main
 fi
-
-
