@@ -16,10 +16,10 @@ command -v awk &>/dev/null || {
 }
 
 # colors - https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
-_clr_muted='\e[38;5;242m'
-_clr_hold='\e[38;5;1m'
-_clr_live='\e[38;5;2m'
-_clr_normal='\e[m'
+_clr_muted='\033[38;5;242m'
+_clr_hold='\033[38;5;1m'
+_clr_live='\033[38;5;2m'
+_clr_normal='\033[m'
 
 # these variables can be overwritten
 # default speed
@@ -95,7 +95,7 @@ _calc_write_delay() {
         # )
         # / ${1:-1}         # multiplier used to type comments faster; which
         #                   # are more quickly digestible than commands
-        _write_delay=$(awk -e "
+        _write_delay=$(awk "
             BEGIN {
                 print (                                             \
                     1 / (($DEMO_SPEED * $DEMO_SPEED_WORD_LEN) / 60) \
